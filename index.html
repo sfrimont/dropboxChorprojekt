@@ -1,0 +1,59 @@
+<!--
+Dieses einfache Beispiel zeigt wie das zu einer Dropbox-App gehörende Verzeichnis gelesen wird.
+Ausgegeben wird die erste Datei im Verzeichnis.
+-->
+
+
+<html ng-app>
+<head>
+	<title>Dropbox Testseite</title>
+
+	<!-- Angular JS einbinden -->
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.19/angular.min.js"></script>
+
+	<!-- Dropbox einbinden -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/dropbox.js/0.10.3/dropbox.js"></script>
+
+	<script>
+	// der Controller für die Webseite
+	function inhaltsangabe($scope, $q) {
+
+    	// wird aufgerufen wenn aktualisieren.resolve(...) ausgeführt wird. 
+		var aktualisieren = $q.defer();
+		aktualisieren.promise.then(function(daten) {
+	    	$scope.dateiname = daten[0];
+    		$scope.inhalt = daten[1];
+		});
+
+    	// Die Verbindung zu der Dropbox wird hergestellt
+		client = new Dropbox.Client({ key: "a562d9wdqydj4oa" },{token: "yuJf6AR8f2IAAAAAAAA-tXtYUelE0P8FyqhN6X1qpz5Nso8bskZoEq-9enHSHiRn"});
+		client.authenticate(function(error, client) {  
+	   
+	    	// Das dieser App zugewiesene Verzeichnis wird ausgelesen
+  			client.readdir("/", function(error, entries) {
+  		    	// Die erste Datei in dem Verzeichnis wird ausgelesen
+  				client.readFile(entries[0], function(error, inhalt) {
+  			
+  					// die ausgelesenen Daten werden für die Übergabe einem neuen Array zugewiesen
+  			    	var daten = new Array();
+  			    	daten[0] = entries[0];
+  			    	daten[1] = inhalt;
+  			    
+  			    	// Die Ausgabe der Daten wird veranlasst
+  					aktualisieren.resolve(daten); 				
+        		});
+  			});
+		});
+	}
+</script>
+</head>
+
+<body ng-controller="inhaltsangabe">
+<h1>Inhalt der ersten Datei in dem zu dieser App zugewiesenen Verzeichnis</h1>
+
+<h2>Der Inhalt der Datei "{{dateiname}}":</h2> 
+<p>{{inhalt}}</p>
+
+
+</body>
+</html>
